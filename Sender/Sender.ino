@@ -36,6 +36,7 @@ void loop() {
   Serial.println(msg);
   
   uint8_t result = esp_now_send(peer, (uint8_t*)msg, sizeof(msg));
+  // peer is the mac address of the receiver, msg is raw bytes of the message, sizeof(msg) is the length of the message
   if (result != 0) {
     Serial.println("Send failed immediately");
   }
