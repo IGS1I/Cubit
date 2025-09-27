@@ -7,10 +7,10 @@
   5Vs - VDD, A
 
 */
-LiquidCrystal lcd(27, 26, 25, 24, 23, 22);
+LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 
-#define DHTPIN 2       
-#define DHTTYPE DHT11  // DHT11 or DHT22
+#define DHTPIN 8      
+#define DHTTYPE DHT11
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -20,18 +20,22 @@ void setup() {
   Serial.begin(9600);
   dht.begin();
 
-  analogWrite(28, 0); // write contrast val for LCD
+  analogWrite(28, 0);
 
-  // Initialize LCD with 16 columns, 2 rows
   lcd.begin(16, 2);
 }
 
 void loop() {
   float humidity = dht.readHumidity();
-  float temperature = dht.readTemperature(); // Celsius
+  int temperature = round(dht.readTemperature());
+  
+  delay(1000);
+  lcd.setCursor(0, 0);
+  lcd.clear();
 
   if (isnan(humidity) || isnan(temperature)) {
-    Serial.println("Failed to read from DHT11 sensor!");
+    Serial.println("Error: Failed to read from DHT11 sensor!");
+    lcd.print("Error: Sensor");
     return;
   }
 
@@ -41,13 +45,13 @@ void loop() {
   Serial.print(temperature);
   Serial.println("°C");
 
-  // Print text on first row
-  lcd.print("Temperature: ");
+  lcd.print("Temp: ");
   lcd.print(temperature);
-  lcd.print("°C");
-  lcd.setCursor(0, 1); // Move to second row and print more text
+  lcd.print("C / ");
+  lcd.print(((9/5) *  temperature) + 32);
+  lcd.print("F");
+  lcd.setCursor(0, 1);
   lcd.print("Humidity: ");
   lcd.print(humidity);
   lcd.print("%");
-  
 }
