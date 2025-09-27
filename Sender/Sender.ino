@@ -1,5 +1,5 @@
-#include <headers/ESP8266WiFi.h> // necessary libraries for Wifi functionality
-#include <headers/espnow.h> // necessary library 
+#include <ESP8266WiFi.h> // necessary libraries for Wifi functionality
+#include <espnow.h> // necessary library 
 
 uint8_t peer[] = {0x24,0x6F,0x28,0xAA,0xBB,0xCC}; // receiver MAC
 
