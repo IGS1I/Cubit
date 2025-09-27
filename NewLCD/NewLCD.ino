@@ -1,12 +1,16 @@
 #include <LiquidCrystal.h>
 
-// Create LCD object with Arduino pin mapping:
-// RS, E, D4, D5, D6, D7
-LiquidCrystal lcd(24, 26, 23, 25, 27, 29);
+/* Create LCD object with Arduino pin mapping:
+  RS, E, D4, D5, D6, D7 - lcd object
+  GNDs - VSS, RW (read/write off since only reading), K
+  5Vs - VDD, A
+
+*/
+LiquidCrystal lcd(27, 26, 25, 24, 23, 22);
 
 void setup() {
 
-  analogWrite(22, 0);
+  analogWrite(28, 0); // V0 pin
 
   // Initialize LCD with 16 columns, 2 rows
   lcd.begin(16, 2);

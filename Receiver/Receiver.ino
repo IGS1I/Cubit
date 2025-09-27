@@ -25,20 +25,10 @@ void setup() {
   delay(5000);  // Add this delay!
   Serial.println("ESP-NOW Receiver Starting...");
   
-  Serial.println("Setting WiFi mode...");
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
-  delay(100);  // Small delay after WiFi setup
-  
-  Serial.print("Receiver MAC Address: ");
-  Serial.println(WiFi.macAddress());
-  
-  Serial.println("Initializing ESP-NOW...");
-  int result = esp_now_init();
-  Serial.print("ESP-NOW init result: ");
-  Serial.println(result);
-  
-  if (result != 0) {
+ 
+  if (esp_now_init() != 0) {
     Serial.println("ESP-NOW init failed");
     return;
   }
