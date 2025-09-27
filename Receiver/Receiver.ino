@@ -1,5 +1,5 @@
-#include <ESP8266WiFi.h>
-#include <espnow.h>
+#include <headers/ESP8266WiFi.h>
+#include <headers/espnow.h>
 
 // Callback function for receiving data
 void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
@@ -33,10 +33,7 @@ void setup() {
     return;
   }
   
-  // Set device role as slave (receiver)
-  esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
-  
-  // Register callback for receiving data
+  // Register callback for receiving data (no role needed)
   esp_now_register_recv_cb(onReceive);
   
   Serial.println("ESP-NOW Receiver initialized successfully");
