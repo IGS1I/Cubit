@@ -1,5 +1,5 @@
-#include <headers/ESP8266WiFi.h>
-#include <headers/espnow.h>
+#include <ESP8266WiFi.h>
+#include <espnow.h>
 
 // Callback function for receiving data
 void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
