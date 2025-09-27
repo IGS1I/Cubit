@@ -21,13 +21,8 @@ void setup() {
     return;
   }
   
-  // Add peer device
-  esp_now_peer_info_t peerInfo;
-  memcpy(peerInfo.peer_addr, peer, 6);
-  peerInfo.channel = 0;
-  peerInfo.encrypt = false;
-
-  if (esp_now_add_peer(&peerInfo) != ESP_OK) {
+  // Add peer device (ESP8266 syntax)
+  if (esp_now_add_peer(peer, ESP_NOW_ROLE_COMBO, 1, NULL, 0) != 0) {
     Serial.println("Failed to add peer");
     return;
   }
