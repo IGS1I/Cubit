@@ -24,9 +24,13 @@ void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
 void setup() {
   Serial.begin(115200);
   Serial.println("ESP-NOW Receiver Starting...");
-  
+
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
+
+  // Print this device's MAC address
+  Serial.print("Receiver MAC Address: ");
+  Serial.println(WiFi.macAddress());
  
   if (esp_now_init() != 0) {
     Serial.println("ESP-NOW init failed");

@@ -1,7 +1,8 @@
 #include <ESP8266WiFi.h> // necessary libraries for Wifi functionality
 #include <espnow.h> // necessary library 
 
-uint8_t peer[] = {0x24,0x6F,0x28,0xAA,0xBB,0xCC}; // receiver MAC
+// IMPORTANT: Replace with your receiver's actual MAC address (check receiver serial output)
+uint8_t peer[] = {0x24,0x6F,0x28,0xAA,0xBB,0xCC}; // receiver MAC - UPDATE THIS!
 
 void onSent(uint8_t *mac, uint8_t status) {
   Serial.print("Send status: ");
@@ -20,8 +21,13 @@ void setup() {
     return;
   }
   
-  // Add peer device (no roles needed)
-  if (esp_now_add_peer(peer, ESP_NOW_ROLE_COMBO, 1, NULL, 0) != 0) {
+  // Add peer device
+  esp_now_peer_info_t peerInfo;
+  memcpy(peerInfo.peer_addr, peer, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
+
+  if (esp_now_add_peer(&peerInfo) != ESP_OK) {
     Serial.println("Failed to add peer");
     return;
   }
