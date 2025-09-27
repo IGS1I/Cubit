@@ -27,12 +27,21 @@ void setup() {
     Serial.println("ESP-NOW init failed");
     return;
   }
+  
+  // Add peer device (ESP8266 syntax)
+  if (esp_now_add_peer(peer, ESP_NOW_ROLE_COMBO, 1, NULL, 0) != 0) {
+    Serial.println("Failed to add peer");
+    return;
+  }
+  
+  esp_now_register_send_cb(onSent); // sets up the callback for send status
 
   // ESP8266 syntax for adding peer (much simpler!)
   esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
   esp_now_add_peer(peer, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
 
   esp_now_register_send_cb(onSent);
+  
   Serial.println("ESP-NOW Sender initialized successfully");
 }
 
