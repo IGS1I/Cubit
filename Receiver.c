@@ -1,17 +1,29 @@
-#include <ESP8266WiFi.h>
-#include <espnow.h>
+#include <headers/ESP8266WiFi.h>
+#include <headers/espnow.h>
 
-// Replace with actual receiver MAC address
-uint8_t peer[] = {0x24,0x6F,0x28,0xAA,0xBB,0xCC}; 
-
-void onSent(uint8_t *mac, uint8_t status) {
-  Serial.print("Send status: ");
-  Serial.println(status == 0 ? "Success" : "Failed");
+// Callback function for receiving data
+void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
+  Serial.print("Received from MAC: ");
+  for (int i = 0; i < 6; i++) {
+    Serial.printf("%02X", mac[i]);
+    if (i < 5) Serial.print(":");
+  }
+  Serial.println();
+  
+  Serial.print("Message: ");
+  for (int i = 0; i < len; i++) {
+    Serial.print((char)data[i]);
+  }
+  Serial.println();
+  
+  Serial.print("Length: ");
+  Serial.println(len);
+  Serial.println("---");
 }
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("ESP-NOW Sender Starting...");
+  Serial.println("ESP-NOW Receiver Starting...");
   
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
@@ -21,30 +33,18 @@ void setup() {
     return;
   }
   
-  // Set device role as controller (sender)
-  esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
+  // Set device role as slave (receiver)
+  esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
   
-  // Add peer device
-  if (esp_now_add_peer(peer, ESP_NOW_ROLE_SLAVE, 1, NULL, 0) != 0) {
-    Serial.println("Failed to add peer");
-    return;
-  }
+  // Register callback for receiving data
+  esp_now_register_recv_cb(onReceive);
   
-  // Register callback for send status
-  esp_now_register_send_cb(onSent);
-  
-  Serial.println("ESP-NOW initialized successfully");
+  Serial.println("ESP-NOW Receiver initialized successfully");
+  Serial.println("Waiting for messages...");
 }
 
 void loop() {
-  const char msg[] = "ALERT:TDS_HIGH";
-  Serial.print("Sending: ");
-  Serial.println(msg);
-  
-  uint8_t result = esp_now_send(peer, (uint8_t*)msg, sizeof(msg));
-  if (result != 0) {
-    Serial.println("Send failed");
-  }
-  
-  delay(5000);
+  // Receiver doesn't need to do anything in loop
+  // All work is done in the onReceive callback
+  delay(1000);
 }
