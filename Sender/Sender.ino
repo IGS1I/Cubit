@@ -11,8 +11,7 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
-// IMPORTANT: Replace with your receiver's actual MAC address
-// You can find the receiver's MAC by checking its serial output
+// receiver's MAC found via its serial output
 uint8_t receiverMAC[] = {0x48, 0x55, 0x19, 0xed, 0x33, 0x11};
 
 // Status tracking

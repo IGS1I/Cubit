@@ -1,20 +1,22 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 #include <ESP8266WebServer.h>
+
+// Definitions
 String myMac;
 char msg[251];  // 250 + '\0'
-
 bool hasDataToSend;
 bool hasReceivedData;
 String outgoingData = "";
 String incomingData = "";
 
+// Function Prototypes
 void onRecv(uint8_t* mac, uint8_t* data, uint8_t len);
 void onSent(uint8_t* mac, uint8_t status);
 void broadcastMessage(String message);
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // start serial communication
   delay(1000);
   Serial.println("ESP-Now Sender Starting..");
   if (esp_now_init() != 0) {
@@ -22,7 +24,7 @@ void setup() {
   }
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
-  myMac = WiFi.macAddress()
+  myMac = WiFi.macAddress();
   Serial.println("My MAC: " + myMac);
 
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
@@ -38,8 +40,9 @@ void setup() {
   Serial.println("  Any text - Broadcast that message");
 }
 
+// Events occuring if message is sent or broadcasted
 void onSent(uint8_t* mac, uint8_t status){
-  
+
   Serial.print("Send status to ");
   for (int i = 0; i < 6; i++) {
     Serial.printf("%02X", mac[i]);
@@ -51,18 +54,19 @@ void onSent(uint8_t* mac, uint8_t status){
 
 }
 
+// Events occurring if message received
 void onRecv(uint8_t* mac, uint8_t* data, uint8_t len){
   char buffer[len + 1];
   memcpy(buffer, incomingData, len);
   buffer[len] = '\0';
-  
+
   Serial.print("Received: ");
   Serial.println(String(buffer));
   hasReceivedData = true;
 }
 
+// Broadcasts message to available NodeMCUs
 void broadcastMessage(String message) {
-  
   uint8_t* messageBytes = (uint8_t*)message.c_str();
   int messageLength = message.length();
   int result = esp_now_send(broadcastAddress, messageBytes, messageLength);
@@ -70,10 +74,9 @@ void broadcastMessage(String message) {
 }
 
 void loop() {
-
-  if (Serial.available()) {          // checks data if in arduno
+  if (Serial.available()) {    // checks data if in arduino
       String sensorData = Serial.readString();
       broadcastMessage(sensorData);
     }
 
-} 
+}
