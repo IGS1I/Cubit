@@ -28,6 +28,7 @@ void loop() {
   delay(1000);
   lcd.setCursor(0, 0);
 
+  //Receives message from NodeMCU (ESP8266)
   if (Serial.available()) {
     String message = Serial.readString();
     message.trim();
@@ -48,7 +49,6 @@ void loop() {
   float humidity = dht.readHumidity();
   int temperature = round(dht.readTemperature());
   
-  lcd.clear();
   lcd.setCursor(0, 0);
 
   if (isnan(humidity) || isnan(temperature)) {
