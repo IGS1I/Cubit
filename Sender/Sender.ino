@@ -24,7 +24,7 @@ unsigned long lastSendTime = 0;   // Tracks when we last sent a message
  * Tells us if the message was delivered successfully
  */
 void onSent(uint8_t *mac, uint8_t status) {
-  Serial.print("📤 Send status to ");
+  Serial.print(" Send status to ");
   
   // Print the MAC address we sent to
   for (int i = 0; i < 6; i++) {
@@ -35,9 +35,9 @@ void onSent(uint8_t *mac, uint8_t status) {
   // Print success or failure
   Serial.print(" - ");
   if (status == 0) {
-    Serial.println("✅ Success");
+    Serial.println(" Success");
   } else {
-    Serial.println("❌ Failed");
+    Serial.println(" Failed");
   }
 }
 
@@ -47,15 +47,17 @@ void onSent(uint8_t *mac, uint8_t status) {
  * Currently not used, but kept for future functionality
  */
 void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
+
   // Check if the response is from our intended receiver
   if (memcmp(mac, receiverMAC, 6) == 0) {
-    Serial.print("📨 Received ACK from receiver: ");
+    Serial.print(" Received ACK from receiver: ");
     for (int i = 0; i < len; i++) {
       Serial.print((char)data[i]);
     }
     Serial.println();
     messageAcknowledged = true;
   }
+
 }
 
 /**
@@ -65,28 +67,29 @@ void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("🚀 ESP-NOW Sender Starting...");
+  Serial.println(" ESP-NOW Sender Starting...");
 
   // Set WiFi to station mode (not creating an access point)
   WiFi.mode(WIFI_STA);
-  Serial.println("📶 WiFi set to Station mode");
+  Serial.println(" WiFi set to Station mode");
 
   // Set channel to 6 (must match receiver's channel)
   wifi_set_channel(6);
   WiFi.disconnect();  // Make sure we're not connected to any WiFi
-  Serial.println("📡 Channel set to 6");
+  Serial.println(" Channel set to 6");
 
   // Initialize ESP-NOW
   if (esp_now_init() != 0) {
-    Serial.println("❌ ESP-NOW initialization failed!");
+    Serial.println(" ESP-NOW initialization failed!");
     return;
   }
 
   // Set up ESP-NOW roles and add the receiver as a peer
-  esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);  // We are the controller
+  esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);  // Seting up sender as main.
   esp_now_add_peer(receiverMAC, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);  // Add receiver as slave
   
-  Serial.print("🎯 Target receiver MAC: ");
+
+  Serial.print(" Target receiver MAC: ");
   for (int i = 0; i < 6; i++) {
     Serial.printf("%02X", receiverMAC[i]);
     if (i < 5) Serial.print(":");
@@ -97,8 +100,8 @@ void setup() {
   esp_now_register_send_cb(onSent);      // Called when message is sent
   esp_now_register_recv_cb(onReceive);   // Called when we receive a response
   
-  Serial.println("✅ ESP-NOW Sender initialized successfully");
-  Serial.println("📤 Ready to send messages...");
+  Serial.println(" ESP-NOW Sender initialized successfully");
+  Serial.println(" Ready to send messages...");
   Serial.println("=== Setup Complete ===");
 } 
 
@@ -108,20 +111,21 @@ void setup() {
  */
 void loop() {
   // Only send if enough time has passed
+  
   if (millis() - lastSendTime >= 5000) {
     const char msg[] = "All is Good";
     
-    Serial.print("📤 Sending: ");
+    Serial.print(" Sending: ");
     Serial.println(msg);
     
     // Reset acknowledgment flag
     messageAcknowledged = false;
     
     // Send the message
-    uint8_t result = esp_now_send(receiverMAC, (uint8_t*)msg, sizeof(msg) - 1);
+    uint8_t result = esp_now_send(receiverMAC,(uint8_t*)msg, sizeof(msg) - 1);
     
     if (result != 0) {
-      Serial.println("❌ Send failed immediately!");
+      Serial.println(" Send failed immediately!");
     }
     
     lastSendTime = millis();  // Update last send time

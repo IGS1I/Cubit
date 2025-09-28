@@ -36,7 +36,7 @@ ESP8266WebServer server(80);
 void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
   
   // Print sender's MAC address
-  Serial.print("📨 Received from MAC: ");
+  Serial.print("Received from MAC: ");
   for (int i = 0; i < 6; i++) {
     Serial.printf("%02X", mac[i]);
     if (i < 5) Serial.print(":");
@@ -44,7 +44,7 @@ void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
   Serial.println();
  
   // Print the actual message
-  Serial.print("💬 Message: ");
+  Serial.print("Message: ");
   for (int i = 0; i < len; i++) {
     Serial.print((char)data[i]);
   }
@@ -56,13 +56,14 @@ void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
   last_msg[n] = '\0';          // Ensure null-terminated string
   last_len = n;
  
-  Serial.print("📏 Length: ");
+  Serial.print("Length: ");
   Serial.println(len);
   
   // Send acknowledgment back to sender
   esp_now_send(mac, (uint8_t*)ack, sizeof(ack) - 1); // -1 to exclude null terminator
-  Serial.println("✅ ACK sent back to sender");
+  Serial.println(" ACK sent back to sender");
   Serial.println("---");
+
 }
 
 /**
@@ -72,39 +73,39 @@ void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
 void setup() {
   Serial.begin(115200);
   delay(5000);  // Give time for serial monitor to connect
-  Serial.println("🚀 ESP-NOW Receiver Starting...");
+  Serial.println(" ESP-NOW Receiver Starting...");
   
   // Set WiFi to both Access Point and Station mode
   WiFi.mode(WIFI_AP_STA);
   
   // Create WiFi access point on channel 6 (must match sender)
   WiFi.softAP(ssid, password, 6);
-  Serial.println("📶 WiFi Access Point created");
-  Serial.print("🌐 Connect to: ");
+  Serial.println(" WiFi Access Point created");
+  Serial.print("Connect to: ");
   Serial.println(ssid);
-  Serial.print("🔑 Password: ");
+  Serial.print("Password: ");
   Serial.println(password);
-  Serial.print("📍 Web interface at: ");
+  Serial.print(" Web interface at: ");
   Serial.println(WiFi.softAPIP());
 
   // Initialize ESP-NOW
   if (esp_now_init() != 0) {
-    Serial.println("❌ ESP-NOW initialization failed!");
+    Serial.println(" ESP-NOW initialization failed!");
     return;
   }
- 
-  Serial.println("📡 Registering ESP-NOW callback...");
+
+  Serial.println("Registering ESP-NOW callback...");
   esp_now_register_recv_cb(onReceive);
  
-  Serial.println("✅ ESP-NOW Receiver initialized successfully");
-  Serial.println("👂 Waiting for messages...");
+  Serial.println(" ESP-NOW Receiver initialized successfully");
+  Serial.println(" Waiting for messages...");
   
   // Setup web server routes
   server.on("/", handleRoot);              // Main page
   server.onNotFound(handleNotFound);       // 404 handler
   server.begin();                          // Start the web server
   
-  Serial.println("🌍 Web server started successfully");
+  Serial.println("Web server started successfully");
   Serial.println("=== Setup Complete ===");
 }
 
@@ -114,7 +115,7 @@ void setup() {
  */
 void loop() {
   // Handle any incoming web requests
-  server.handleClient(); 
+  server.handleClient();  
   
   // Print status every 10 seconds so we know it's alive
   static unsigned long lastPrint = 0;
@@ -145,19 +146,19 @@ void handleRoot() {
   html += "</style>";
   html += "</head><body>";
   html += "<div class='container'>";
-  html += "<h1>📡 ESP-NOW Receiver</h1>";
-  html += "<div class='status'>✅ Web server is working!</div>";
+  html += "<h1> ESP-NOW Receiver</h1>";
+  html += "<div class='status'> Web server is working!</div>";
   html += "<h2>Last Received Message:</h2>";
   html += "<div class='message'>";
   html += last_msg;
   html += "</div>";
-  html += "<div class='status'>📶 ESP-NOW receiver is active</div>";
-  html += "<div class='status'>🌐 IP: 192.168.4.1</div>";
-  html += "<div class='status'>🔄 Page auto-refreshes every 5 seconds</div>";
+  html += "<div class='status'> ESP-NOW receiver is active</div>";
+  html += "<div class='status'> IP: 192.168.4.1</div>";
+  html += "<div class='status'> Page auto-refreshes every 5 seconds</div>";
   html += "</div></body></html>";
   
   server.send(200, "text/html", html);
-  Serial.println("💻 Homepage served to client");
+  Serial.println(" Homepage served to client");
 }
 
 /**
@@ -166,5 +167,5 @@ void handleRoot() {
  */
 void handleNotFound() {
   server.send(404, "text/plain", "404: Not found");
-  Serial.println("❌ 404 error served to client");
+  Serial.println(" 404 error served to client");
 }
