@@ -1,7 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
-// Callback when data is received
 void onReceive(uint8_t* mac, uint8_t* data, uint8_t len) {
   Serial.printf("Got message (%d bytes): %.*s\n", len, len, data);
 }
@@ -10,16 +9,13 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  // 1. Station mode is required
   WiFi.mode(WIFI_STA);
 
-  // 2. Init ESP-NOW
   if (esp_now_init() != 0) {
     Serial.println("ESP-NOW init failed!");
     return;
   }
 
-  // 3. Register receive callback
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
   esp_now_register_recv_cb(onReceive);
 
