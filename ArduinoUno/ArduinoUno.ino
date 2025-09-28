@@ -14,6 +14,8 @@ LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 
 DHT dht(DHTPIN, DHTTYPE);
 
+volatile bool dataRequested = false;
+
 void setup() {
 
   // ~9600 bps
@@ -23,27 +25,36 @@ void setup() {
   analogWrite(28, 0);
 
   lcd.begin(16, 2);
+
+  // Set up interrupt on pin 2 for data request
+  pinMode(13, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(13), requestData, FALLING);
 }
 
 void loop() {
   float humidity = dht.readHumidity();
   int temperature = round(dht.readTemperature());
-  
+
   delay(1000);
   lcd.setCursor(0, 0);
   lcd.clear();
 
   if (isnan(humidity) || isnan(temperature)) {
-    Serial.println("Error: Failed to read from DHT11 sensor!");
     lcd.print("Error: Sensor");
+    if (dataRequested) {
+      Serial.println("ERROR");
+      dataRequested = false;
+    }
     return;
   }
 
-  Serial.print("Humidity: ");
-  Serial.print(humidity);
-  Serial.print("%  Temperature: ");
-  Serial.print(temperature);
-  Serial.println("°C");
+  // Check if data was requested via interrupt
+  if (dataRequested) {
+    Serial.print(temperature);
+    Serial.print(",");
+    Serial.println(humidity);
+    dataRequested = false;
+  }
 
   lcd.print("Temp: ");
   lcd.print(temperature);
@@ -54,4 +65,8 @@ void loop() {
   lcd.print("Humidity: ");
   lcd.print(humidity);
   lcd.print("%");
+}
+
+void requestData() {
+  dataRequested = true;
 }
