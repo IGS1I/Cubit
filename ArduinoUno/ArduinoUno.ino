@@ -1,5 +1,6 @@
 #include <LiquidCrystal.h>
 #include <DHT.h>
+#include <SoftwareSerial.h>
 
 /* Create LCD object with Arduino pin mapping:
   RS, E, D4, D5, D6, D7 - lcd object
@@ -14,8 +15,6 @@ LiquidCrystal lcd(9, 3, 4, 5, 6, 7);
 
 DHT dht(DHTPIN, DHTTYPE);
 
-volatile bool dataRequested = false;
-
 void setup() {
 
   // ~9600 bps
@@ -26,12 +25,23 @@ void setup() {
 
   lcd.begin(16, 2);
 
-  // Set up interrupt on pin 2 for data request
-  pinMode(2, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(2), requestData, FALLING);
-}
-
 void loop() {
+    // Check for incoming messages
+    if (Serial.available()) {
+      String message = Serial.readString();
+      message.trim();
+
+      // Display message on LCD
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print(message.substring(0, 16)); // First line (16 chars max)
+      if (message.length() > 16) {
+        lcd.setCursor(0, 1);
+        lcd.print(message.substring(16, 32)); // Second line
+      }
+
+      delay(2000); // Show message for 2 seconds
+    }
   float humidity = dht.readHumidity();
   int temperature = round(dht.readTemperature());
 
@@ -41,19 +51,7 @@ void loop() {
 
   if (isnan(humidity) || isnan(temperature)) {
     lcd.print("Error: Sensor");
-    if (dataRequested) {
-      Serial.println("ERROR");
-      dataRequested = false;
-    }
     return;
-  }
-
-  // Check if data was requested via interrupt
-  if (dataRequested) {
-    Serial.print(temperature);
-    Serial.print(",");
-    Serial.println(humidity);
-    dataRequested = false;
   }
 
   lcd.print("Temp: ");
@@ -65,8 +63,4 @@ void loop() {
   lcd.print("Humidity: ");
   lcd.print(humidity);
   lcd.print("%");
-}
-
-void requestData() {
-  dataRequested = true;
 }
