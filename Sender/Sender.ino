@@ -1,74 +1,131 @@
+/*
+ * ESP-NOW SENDER
+ * 
+ * This device sends "All is Good" messages every 5 seconds
+ * to a specific receiver device using ESP-NOW protocol.
+ * 
+ * ESP-NOW is a wireless communication protocol that allows
+ * ESP devices to communicate without connecting to WiFi.
+ */
+
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
 // IMPORTANT: Replace with your receiver's actual MAC address
-//sender
-uint8_t leader[] = {0x48, 0x55, 0x19, 0xed, 0x33, 0x11}; // The master's MAC
+// You can find the receiver's MAC by checking its serial output
+uint8_t receiverMAC[] = {0x48, 0x55, 0x19, 0xed, 0x33, 0x11};
 
+// Status tracking
+bool messageAcknowledged = false;  // Tracks if receiver responded
+unsigned long lastSendTime = 0;   // Tracks when we last sent a message
 
+/**
+ * Callback function that runs after we try to send a message
+ * Tells us if the message was delivered successfully
+ */
 void onSent(uint8_t *mac, uint8_t status) {
-
-  Serial.print("Send status to ");
+  Serial.print("📤 Send status to ");
+  
+  // Print the MAC address we sent to
   for (int i = 0; i < 6; i++) {
     Serial.printf("%02X", mac[i]);
     if (i < 5) Serial.print(":");
   }
-  Serial.print(" - ");
-  Serial.println(status == 0 ? "Success" : "Failed");// check if succesfully sent
-}
-
-//check if master has given the go to. 
-void verify(uint8_t *mac, uint8_t status){
-
-  if (memcmp(mac, leader, 6) == 0) {
-    Serial.println("MAC matches!");
-  }
   
+  // Print success or failure
+  Serial.print(" - ");
+  if (status == 0) {
+    Serial.println("✅ Success");
+  } else {
+    Serial.println("❌ Failed");
+  }
 }
 
+/**
+ * Callback function that runs when we receive a message back
+ * This would handle acknowledgments from the receiver
+ * Currently not used, but kept for future functionality
+ */
+void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
+  // Check if the response is from our intended receiver
+  if (memcmp(mac, receiverMAC, 6) == 0) {
+    Serial.print("📨 Received ACK from receiver: ");
+    for (int i = 0; i < len; i++) {
+      Serial.print((char)data[i]);
+    }
+    Serial.println();
+    messageAcknowledged = true;
+  }
+}
+
+/**
+ * Setup function - runs once when the ESP8266 starts
+ * Initializes ESP-NOW communication
+ */
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("ESP-NOW Sender Starting...");
+  Serial.println("🚀 ESP-NOW Sender Starting...");
 
+  // Set WiFi to station mode (not creating an access point)
   WiFi.mode(WIFI_STA);
+  Serial.println("📶 WiFi set to Station mode");
 
+  // Set channel to 6 (must match receiver's channel)
   wifi_set_channel(6);
-  WiFi.disconnect();
+  WiFi.disconnect();  // Make sure we're not connected to any WiFi
+  Serial.println("📡 Channel set to 6");
 
+  // Initialize ESP-NOW
   if (esp_now_init() != 0) {
-    Serial.println("ESP-NOW init failed");
+    Serial.println("❌ ESP-NOW initialization failed!");
     return;
   }
+
+  // Set up ESP-NOW roles and add the receiver as a peer
+  esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);  // We are the controller
+  esp_now_add_peer(receiverMAC, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);  // Add receiver as slave
   
-  // Add peer device (ESP8266 syntax)
-  if (esp_now_add_peer(peer, ESP_NOW_ROLE_COMBO, 1, NULL, 0) != 0) {
-    Serial.println("Failed to add peer");
-    return;
+  Serial.print("🎯 Target receiver MAC: ");
+  for (int i = 0; i < 6; i++) {
+    Serial.printf("%02X", receiverMAC[i]);
+    if (i < 5) Serial.print(":");
   }
+  Serial.println();
+
+  // Register callback functions
+  esp_now_register_send_cb(onSent);      // Called when message is sent
+  esp_now_register_recv_cb(onReceive);   // Called when we receive a response
   
-  esp_now_register_send_cb(onSent); // sets up the callback for send status
-
-  // ESP8266 syntax for adding peer (much simpler!)
-  esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
-  esp_now_add_peer(leader, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
-
-  esp_now_register_send_cb(onSent);
-  
-  Serial.println("ESP-NOW Sender initialized successfully");
-
+  Serial.println("✅ ESP-NOW Sender initialized successfully");
+  Serial.println("📤 Ready to send messages...");
+  Serial.println("=== Setup Complete ===");
 } 
 
+/**
+ * Main loop - runs continuously
+ * Sends "All is Good" message every 5 seconds
+ */
 void loop() {
-
-  const char msg[] = "All is Good";
-  Serial.print("Sending: ");
-  Serial.println(msg);
-
-  uint8_t result = esp_now_send(leader, (uint8_t*)msg, sizeof(msg) - 1); // -1 to exclude null terminator 
-
-  if (result != 0) {
-    Serial.println("Send failed immediately");
+  // Only send if enough time has passed
+  if (millis() - lastSendTime >= 5000) {
+    const char msg[] = "All is Good";
+    
+    Serial.print("📤 Sending: ");
+    Serial.println(msg);
+    
+    // Reset acknowledgment flag
+    messageAcknowledged = false;
+    
+    // Send the message
+    uint8_t result = esp_now_send(receiverMAC, (uint8_t*)msg, sizeof(msg) - 1);
+    
+    if (result != 0) {
+      Serial.println("❌ Send failed immediately!");
+    }
+    
+    lastSendTime = millis();  // Update last send time
   }
-  delay(5000);
+  
+  delay(100);  // Small delay to prevent overwhelming the CPU
 }
