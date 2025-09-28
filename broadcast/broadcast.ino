@@ -1,20 +1,22 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 #include <ESP8266WebServer.h>
+
+// Definitions
 String myMac;
 char msg[251];  // 250 + '\0'
-
 bool hasDataToSend;
 bool hasReceivedData;
 String outgoingData = "";
 String incomingData = "";
 
+// Function Prototypes
 void onRecv(uint8_t* mac, uint8_t* data, uint8_t len);
 void onSent(uint8_t* mac, uint8_t status);
 void broadcastMessage(String message);
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // start serial communication
   delay(1000);
   Serial.println("ESP-Now Sender Starting..");
   if (esp_now_init() != 0) {

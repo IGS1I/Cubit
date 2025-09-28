@@ -19,7 +19,7 @@ DHT dht(DHTPIN, DHTTYPE);
 void setup() {
 
   // ~9600 bps
-  Serial.begin(9600);
+  Serial.begin(115200);
   dht.begin();
 
   analogWrite(28, 0);
@@ -43,6 +43,8 @@ void loop() {
 
       delay(2000); // Show message for 2 seconds
     }
+
+  // Continue will usual display
   float humidity = dht.readHumidity();
   int temperature = round(dht.readTemperature());
 
