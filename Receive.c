@@ -1,11 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <espnow.h>
 
-// Callback when data is received
-void onReceive(uint8_t* mac, uint8_t* data, uint8_t len) {
-  Serial.printf("%.*s\n", len, data);
-}
-
 void setup() {
   Serial.begin(115200);
 
