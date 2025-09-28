@@ -7,8 +7,9 @@
   GNDs - VSS, RW (read/write off since only reading), K
   5Vs - VDD, A
 
+  For Serial: TX->RX && RX->TX
 */
-LiquidCrystal lcd(9, 3, 4, 5, 6, 7);
+LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 
 #define DHTPIN 8      
 #define DHTTYPE DHT11
@@ -24,7 +25,7 @@ void setup() {
   analogWrite(28, 0);
 
   lcd.begin(16, 2);
-
+}
 void loop() {
     // Check for incoming messages
     if (Serial.available()) {
@@ -50,6 +51,7 @@ void loop() {
   lcd.clear();
 
   if (isnan(humidity) || isnan(temperature)) {
+    Serial.println("Error: Failed to read from DHT11 sensor!");
     lcd.print("Error: Sensor");
     return;
   }

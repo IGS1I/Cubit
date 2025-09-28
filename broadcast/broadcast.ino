@@ -38,6 +38,7 @@ void setup() {
   Serial.println("  Any text - Broadcast that message");
 }
 
+// Events occuring if message is sent or broadcasted
 void onSent(uint8_t* mac, uint8_t status){
   
   Serial.print("Send status to ");
@@ -51,6 +52,7 @@ void onSent(uint8_t* mac, uint8_t status){
 
 }
 
+// Events occurring if message received
 void onRecv(uint8_t* mac, uint8_t* data, uint8_t len){
   char buffer[len + 1];
   memcpy(buffer, incomingData, len);
@@ -61,6 +63,7 @@ void onRecv(uint8_t* mac, uint8_t* data, uint8_t len){
   hasReceivedData = true;
 }
 
+// Broadcasts message to available NodeMCUs
 void broadcastMessage(String message) {
   
   uint8_t* messageBytes = (uint8_t*)message.c_str();
