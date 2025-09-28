@@ -28,7 +28,6 @@ void loop() {
   if (message == "") {
     return;
   }
-  Serial.print(message);
   sendPacket(message);
 }
 
