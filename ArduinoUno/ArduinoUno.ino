@@ -7,7 +7,7 @@
   5Vs - VDD, A
 
 */
-LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
+LiquidCrystal lcd(9, 3, 4, 5, 6, 7);
 
 #define DHTPIN 8      
 #define DHTTYPE DHT11
@@ -27,8 +27,8 @@ void setup() {
   lcd.begin(16, 2);
 
   // Set up interrupt on pin 2 for data request
-  pinMode(13, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(13), requestData, FALLING);
+  pinMode(2, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), requestData, FALLING);
 }
 
 void loop() {

@@ -2,8 +2,8 @@
 
 void setup() {
   Serial.begin(9600);
-  pinMode(3, OUTPUT); // Request pin to Uno's pin 13
-  digitalWrite(3, HIGH);
+  pinMode(D1, OUTPUT); // Request pin to Uno's pin 13
+  digitalWrite(D1, HIGH);
   Serial.println("ESP8266 Sender Ready");
 }
 
@@ -15,9 +15,9 @@ void loop() {
 
 void requestSensorData() {
   // Brief interrupt pulse
-  digitalWrite(3, LOW);
+  digitalWrite(D1, LOW);
   delayMicroseconds(100); // Very short pulse
-  digitalWrite(3, HIGH);
+  digitalWrite(D1, HIGH);
 
   // Wait for response with timeout
   unsigned long startTime = millis();

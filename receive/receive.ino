@@ -12,4 +12,5 @@ void loop() {
     int c = esp.read();
     Serial.write(c);  // forward to Serial Monitor
   }
+  delay(1000);
 }
