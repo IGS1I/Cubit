@@ -5,8 +5,8 @@
   RS, E, D4, D5, D6, D7 - lcd object
   GNDs - VSS, RW (read/write off since only reading), K
   5Vs - VDD, A
-*/
 
+*/
 LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 
 #define DHTPIN 8      
@@ -17,33 +17,29 @@ DHT dht(DHTPIN, DHTTYPE);
 void setup() {
 
   // ~9600 bps
-  Serial.begin(9600);
+  Serial.begin(115200);
   dht.begin();
 
   lcd.begin(16, 2);
 }
 
 void loop() {
+    // Check for incoming messages
+    if (Serial.available()) {
+      String message = Serial.readString();
+      message.trim();
 
-  delay(1000);
-  lcd.setCursor(0, 0);
+      // Display message on LCD
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print(message.substring(0, 16)); // First line (16 chars max)
+      if (message.length() > 16) {
+        lcd.setCursor(0, 1);
+        lcd.print(message.substring(16, 32)); // Second line
+      }
 
-  if (Serial.available()) {
-    String message = Serial.readString();
-    message.trim();
-
-    lcd.clear();
-    lcd.setCursor(0, 0);
-
-    lcd.print(message.substring(0, 16));
-    if (message.length() > 16) {
-      lcd.setCursor(0, 1);
-      lcd.print(message.substring(16, 32));
+      delay(2000); // Show message for 2 seconds
     }
-
-    delay(10000);
-
-  }
 
   float humidity = dht.readHumidity();
   int temperature = round(dht.readTemperature());
