@@ -11,7 +11,7 @@
 */
 LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 
-#define DHTPIN 8      
+#define DHTPIN 8
 #define DHTTYPE DHT11
 
 DHT dht(DHTPIN, DHTTYPE);
@@ -58,6 +58,7 @@ void loop() {
     return;
   }
 
+  // Printing
   lcd.print("Temp: ");
   lcd.print(temperature);
   lcd.print("C / ");

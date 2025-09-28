@@ -24,7 +24,7 @@ void setup() {
   }
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
-  myMac = WiFi.macAddress()
+  myMac = WiFi.macAddress();
   Serial.println("My MAC: " + myMac);
 
   esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
@@ -42,7 +42,7 @@ void setup() {
 
 // Events occuring if message is sent or broadcasted
 void onSent(uint8_t* mac, uint8_t status){
-  
+
   Serial.print("Send status to ");
   for (int i = 0; i < 6; i++) {
     Serial.printf("%02X", mac[i]);
@@ -59,7 +59,7 @@ void onRecv(uint8_t* mac, uint8_t* data, uint8_t len){
   char buffer[len + 1];
   memcpy(buffer, incomingData, len);
   buffer[len] = '\0';
-  
+
   Serial.print("Received: ");
   Serial.println(String(buffer));
   hasReceivedData = true;
@@ -67,7 +67,6 @@ void onRecv(uint8_t* mac, uint8_t* data, uint8_t len){
 
 // Broadcasts message to available NodeMCUs
 void broadcastMessage(String message) {
-  
   uint8_t* messageBytes = (uint8_t*)message.c_str();
   int messageLength = message.length();
   int result = esp_now_send(broadcastAddress, messageBytes, messageLength);
@@ -75,10 +74,9 @@ void broadcastMessage(String message) {
 }
 
 void loop() {
-
-  if (Serial.available()) {          // checks data if in arduno
+  if (Serial.available()) {    // checks data if in arduino
       String sensorData = Serial.readString();
       broadcastMessage(sensorData);
     }
 
-} 
+}
