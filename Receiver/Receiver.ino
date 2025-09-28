@@ -36,7 +36,7 @@ ESP8266WebServer server(80);
 void onReceive(uint8_t *mac, uint8_t *data, uint8_t len) {
   
   // Print sender's MAC address
-  Serial.print("📨 Received from MAC: ");
+  Serial.print("Received from MAC: ");
   for (int i = 0; i < 6; i++) {
     Serial.printf("%02X", mac[i]);
     if (i < 5) Serial.print(":");
@@ -115,7 +115,7 @@ void setup() {
  */
 void loop() {
   // Handle any incoming web requests
-  server.handleClient(); 
+  server.handleClient();  
   
   // Print status every 10 seconds so we know it's alive
   static unsigned long lastPrint = 0;
